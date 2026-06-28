@@ -96,6 +96,17 @@ export const BaseNode = ({ id, data, config }) => {
           />
         ))}
 
+        {/* Handle labels (left side) — shown as tiny text near each handle */}
+        {inputs.length > 1 && (
+          <div className="pf-handle-labels pf-handle-labels-left">
+            {inputs.map((h, i) => (
+              <span key={h.id} className="pf-handle-label" style={{ top: getHandleTop(i, inputs.length) }}>
+                {h.label}
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* Dynamic form inputs inside node card */}
         <div className="pf-node-fields" style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
           {(config.fields || []).map((field) => (
@@ -147,27 +158,18 @@ export const BaseNode = ({ id, data, config }) => {
           />
         ))}
 
-      </div>
+        {/* Handle labels (right side) — shown as tiny text near each handle */}
+        {outputs.length > 1 && (
+          <div className="pf-handle-labels pf-handle-labels-right">
+            {outputs.map((h, i) => (
+              <span key={h.id} className="pf-handle-label pf-handle-label-right" style={{ top: getHandleTop(i, outputs.length) }}>
+                {h.label}
+              </span>
+            ))}
+          </div>
+        )}
 
-      {/* Handle labels — shown as tiny text near each handle */}
-      {inputs.length > 1 && (
-        <div className="pf-handle-labels pf-handle-labels-left">
-          {inputs.map((h, i) => (
-            <span key={h.id} className="pf-handle-label" style={{ top: getHandleTop(i, inputs.length) }}>
-              {h.label}
-            </span>
-          ))}
-        </div>
-      )}
-      {outputs.length > 1 && (
-        <div className="pf-handle-labels pf-handle-labels-right">
-          {outputs.map((h, i) => (
-            <span key={h.id} className="pf-handle-label pf-handle-label-right" style={{ top: getHandleTop(i, outputs.length) }}>
-              {h.label}
-            </span>
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 };
