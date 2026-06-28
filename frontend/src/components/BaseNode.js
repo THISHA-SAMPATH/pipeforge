@@ -30,18 +30,47 @@ import { useStore } from '../store';
 
 export const BaseNode = ({ id, data, config }) => {
 
-  // Initialize fields in the global store on mount
+  // Local state for fields to prevent lag and focus loss
+  const [fields, setFields] = useState(() => {
+    const initial = {};
+    (config.fields || []).forEach(f => {
+      initial[f.key] = data?.[f.key] ?? f.defaultValue ?? '';
+    });
+    return initial;
+  });
+
+  // Sync global store updates (e.g. from state restoration or duplicates) back to local state
+  useEffect(() => {
+    let changed = false;
+    const updated = { ...fields };
+    (config.fields || []).forEach(f => {
+      const val = data?.[f.key];
+      if (val !== undefined && val !== fields[f.key]) {
+        updated[f.key] = val;
+        changed = true;
+      }
+    });
+    if (changed) {
+      setFields(updated);
+    }
+  }, [data, config.fields, fields]);
+
+  // Sync initial fields to store if undefined
   useEffect(() => {
     const storeNode = useStore.getState().nodes.find(n => n.id === id);
     const storeData = storeNode?.data || {};
     (config.fields || []).forEach(f => {
       const currentVal = storeData[f.key];
       if (currentVal === undefined) {
-        const defaultVal = data?.[f.key] ?? f.defaultValue ?? '';
-        useStore.getState().updateNodeField(id, f.key, defaultVal);
+        useStore.getState().updateNodeField(id, f.key, fields[f.key]);
       }
     });
-  }, [id, data, config.fields]);
+  }, [id, config.fields, fields]);
+
+  const handleFieldChange = (key, val) => {
+    setFields(prev => ({ ...prev, [key]: val }));
+    useStore.getState().updateNodeField(id, key, val);
+  };
 
   // Distribute handles evenly along the node edge
   const getHandleTop = (index, total) => {
@@ -52,10 +81,6 @@ export const BaseNode = ({ id, data, config }) => {
 
   const inputs  = config.inputs  || [];
   const outputs = config.outputs || [];
-
-  const getFieldValue = (key, defaultValue) => {
-    return data?.[key] ?? defaultValue ?? '';
-  };
 
   // Sleek, compact height based on connections
   const minHeight = Math.max(48, Math.max(inputs.length, outputs.length) * 24 + 10);
@@ -115,8 +140,8 @@ export const BaseNode = ({ id, data, config }) => {
               {field.type === 'select' ? (
                 <select
                   className="pf-select nodrag"
-                  value={getFieldValue(field.key, field.defaultValue)}
-                  onChange={(e) => useStore.getState().updateNodeField(id, field.key, e.target.value)}
+                  value={fields[field.key] ?? ''}
+                  onChange={(e) => handleFieldChange(field.key, e.target.value)}
                 >
                   {(field.options || []).map((opt) => (
                     <option key={opt} value={opt}>
@@ -127,8 +152,8 @@ export const BaseNode = ({ id, data, config }) => {
               ) : field.type === 'textarea' ? (
                 <textarea
                   className="pf-textarea nodrag"
-                  value={getFieldValue(field.key, field.defaultValue)}
-                  onChange={(e) => useStore.getState().updateNodeField(id, field.key, e.target.value)}
+                  value={fields[field.key] ?? ''}
+                  onChange={(e) => handleFieldChange(field.key, e.target.value)}
                   placeholder={field.placeholder || ''}
                   rows={3}
                 />
@@ -136,8 +161,8 @@ export const BaseNode = ({ id, data, config }) => {
                 <input
                   className="pf-input nodrag"
                   type={field.type || 'text'}
-                  value={getFieldValue(field.key, field.defaultValue)}
-                  onChange={(e) => useStore.getState().updateNodeField(id, field.key, e.target.value)}
+                  value={fields[field.key] ?? ''}
+                  onChange={(e) => handleFieldChange(field.key, e.target.value)}
                   placeholder={field.placeholder || ''}
                 />
               )}

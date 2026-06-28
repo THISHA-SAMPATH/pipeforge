@@ -45,8 +45,17 @@ export const SubmitButton = () => {
     }
   };
 
+  const handleClear = () => {
+    useStore.setState({ nodes: [], edges: [], nodeIDs: {} });
+    localStorage.removeItem('pipeforge-state');
+    addToast('Canvas cleared successfully.', 'info', 3000);
+  };
+
   return (
-    <div className="submit-container">
+    <div className="submit-container" style={{ display: 'flex', gap: '10px' }}>
+      <button className="clear-pipeline-btn" onClick={handleClear} disabled={loading}>
+        🧹 Clear Canvas
+      </button>
       <button className="run-pipeline-btn" onClick={handleSubmit} disabled={loading}>
         {loading ? '⏳ Analyzing...' : '▶ Run Pipeline'}
       </button>
