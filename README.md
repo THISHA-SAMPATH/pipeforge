@@ -2,6 +2,9 @@
 
 PipeForge is a modern, config-driven visual pipeline builder. It features a full-screen canvas built with ReactFlow, a floating 9-node palette toolbar, robust pipeline validation (DAG analysis), and user-friendly error state handling.
 
+### Part 1 Abstraction Decision
+Rather than duplicate code across 9 separate node files, we centralized all form fields, themes, and input/output handles into a single configuration schema (`nodeConfigs.js`). The generic `BaseNode.js` component dynamically interprets this schema to render handles and input controls, keeping layout styling fully uniform and reducing new node definitions to single-line wrappers.
+
 ---
 
 ## Features
