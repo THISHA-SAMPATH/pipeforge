@@ -41,19 +41,19 @@ export const BaseNode = ({ id, data, config }) => {
 
   // Sync global store updates (e.g. from state restoration or duplicates) back to local state
   useEffect(() => {
-    let changed = false;
-    const updated = { ...fields };
-    (config.fields || []).forEach(f => {
-      const val = data?.[f.key];
-      if (val !== undefined && val !== fields[f.key]) {
-        updated[f.key] = val;
-        changed = true;
-      }
+    setFields(prev => {
+      const updated = {};
+      let changed = false;
+      (config.fields || []).forEach(f => {
+        const val = data?.[f.key];
+        if (val !== undefined && val !== prev[f.key]) {
+          updated[f.key] = val;
+          changed = true;
+        }
+      });
+      return changed ? { ...prev, ...updated } : prev;
     });
-    if (changed) {
-      setFields(updated);
-    }
-  }, [data, config.fields, fields]);
+  }, [data, config.fields]);
 
   // Sync initial fields to store if undefined
   useEffect(() => {
