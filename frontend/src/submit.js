@@ -4,11 +4,12 @@ import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
 
 export const SubmitButton = () => {
-  const { nodes, edges, addToast } = useStore(
+  const { nodes, edges, addToast, clearCanvas } = useStore(
     (state) => ({
       nodes: state.nodes,
       edges: state.edges,
       addToast: state.addToast,
+      clearCanvas: state.clearCanvas,
     }),
     shallow
   );
@@ -46,9 +47,8 @@ export const SubmitButton = () => {
   };
 
   const handleClear = () => {
-    useStore.setState({ nodes: [], edges: [], nodeIDs: {} });
-    localStorage.removeItem('pipeforge-state');
-    addToast('Canvas cleared successfully.', 'info', 3000);
+    clearCanvas();
+    addToast('Canvas cleared.', 'info', 2000);
   };
 
   return (

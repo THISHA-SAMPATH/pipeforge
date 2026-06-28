@@ -32,6 +32,10 @@ export const useStore = create((set, get) => ({
     nodes: savedState.nodes,
     edges: savedState.edges,
     nodeIDs: savedState.nodeIDs,
+    clearCanvas: () => {
+      set({ nodes: [], edges: [], nodeIDs: {} });
+      localStorage.removeItem('pipeforge-state');
+    },
     toasts: [],
     logs: [
       { id: 'log-initial', text: 'System Initialized', status: 'success', time: '10:39:40 AM' }
